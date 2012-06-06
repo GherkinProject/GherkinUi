@@ -6,6 +6,7 @@
 #      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
+from configUi import *
 
 from PyQt4 import QtCore, QtGui
 
@@ -30,7 +31,7 @@ class server_window():
         #lineEdit to insert the IP adress of the new server
         self.lineEdit = QtGui.QLineEdit(Dialog)
         self.lineEdit.setGeometry(QtCore.QRect(10, 10, 291, 27))
-        self.lineEdit.setText(QtGui.QApplication.translate("Dialog", "Entrez le nom du serveur", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit.setText(QtGui.QApplication.translate("Dialog", config.serverName + ":" + str(config.defaultPort), None, QtGui.QApplication.UnicodeUTF8))
         self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
 
         #listWidget of the previously used server by the user

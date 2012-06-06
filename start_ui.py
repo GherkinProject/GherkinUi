@@ -3,13 +3,14 @@
 
 #adding path of audio player to the lib
 import sys
+from configUi import *
 
-if 'ui/' not in sys.path:
-    sys.path.append('ui/')
+if config.root + 'ui/' not in sys.path:
+    sys.path.append(config.root + 'ui/')
 
 #ui is calling the database
-if 'db-tools/' not in sys.path:
-    sys.path.append('db-tools/')
+if config.root + 'db-tools/' not in sys.path:
+    sys.path.append(config.root + 'db-tools/')
 
 #running server
 import run

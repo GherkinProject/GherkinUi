@@ -2,6 +2,9 @@ import ConfigParser
 import json
 import os
 
+ad = os.path.abspath( __file__ )
+ad = ad.rsplit('/', 1)[0] +'/'
+
 class cfg_ui:
 	def __init__(self, fileName):
 		self.fileName = fileName		
@@ -74,8 +77,7 @@ class cfg_ui:
 		self.config.set('constante', 'keepPlaylist', '6')
 
 		self.config.add_section('location')
-		ad = os.path.abspath( __file__ )
-		self.config.set('location', 'root', ad[:len(ad) - len( __file__ )])
+		self.config.set('location', 'root', ad)
 		self.config.set('location', 'pictures', '%(root)spictures/')
 		self.config.set('location', 'log', '%(root)slog/')
 		self.config.set('location', 'DbLoc', '%(root)s')
@@ -104,4 +106,4 @@ class cfg_ui:
 	    with open(self.fileName, 'wb') as configfile:
 		self.config.write(configfile)
 
-config = cfg_ui('configUi.cfg')
+config = cfg_ui(ad +'configUi.cfg')
