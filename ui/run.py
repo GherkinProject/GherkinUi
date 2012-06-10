@@ -39,118 +39,122 @@ class MyForm(QtGui.QMainWindow):
         self.Widget = QtGui.QWidget()
         self.Playlist_Window = playlist_window()
         self.Playlist_Window.setup_playlist_window(self.Widget)
-
-        #self.Ui.AudioTrack.mousePressEvent = mousePressEvent        
-        
-        #initializing server
-        self.start_ui()
         
         #signal received, functions called
-
-        # Shortcuts
-        self.shortPlay = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+J"), self)
-        self.shortPrev = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+H"), self)
-        self.shortNext = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+K"), self)
-        QtCore.QObject.connect(self.shortPlay, QtCore.SIGNAL('activated()'), self.call_play_pause )
-        QtCore.QObject.connect(self.shortPrev, QtCore.SIGNAL('activated()'), self.call_prev )
-        QtCore.QObject.connect(self.shortNext, QtCore.SIGNAL('activated()'), self.call_next )
         
         # Menu
-        QtCore.QObject.connect(self.Ui.actionImporter_Dossier, QtCore.SIGNAL("triggered()"), self.open_browser)
         QtCore.QObject.connect(self.Ui.actionChercher_Serveur, QtCore.SIGNAL("triggered()"), self.open_server_window)
-        
-        # By song
-        QtCore.QObject.connect(self.Ui.AudioTrack, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_track_before )
-        QtCore.QObject.connect(self.Ui.AudioTrack, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_track )
-        QtCore.QObject.connect(self.Ui.AudioTrack, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right )
-        # By album
-        QtCore.QObject.connect(self.Ui.Album, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_album_before )
-        QtCore.QObject.connect(self.Ui.Album, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_album)
-        QtCore.QObject.connect(self.Ui.Album, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right )
-        QtCore.QObject.connect(self.Ui.Album.header(), QtCore.SIGNAL("sectionClicked(int)"), self.call_add_all_albums )
-        # By artist
-        QtCore.QObject.connect(self.Ui.Artist, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_artist_before )
-        QtCore.QObject.connect(self.Ui.Artist, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_artist )
-        QtCore.QObject.connect(self.Ui.Artist, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right )
-        QtCore.QObject.connect(self.Ui.Artist.header(), QtCore.SIGNAL("sectionClicked(int)"), self.call_add_all )
-         
-        # Buttons
-        QtCore.QObject.connect(self.Ui.PlayButton, QtCore.SIGNAL("clicked()"), self.call_play_pause )
-        QtCore.QObject.connect(self.Ui.NextButton, QtCore.SIGNAL("clicked()"), self.call_next)
-        QtCore.QObject.connect(self.Ui.PreviousButton, QtCore.SIGNAL("clicked()"), self.call_prev)
-        QtCore.QObject.connect(self.Ui.RandomButton, QtCore.SIGNAL("clicked()"), self.call_random)
-        QtCore.QObject.connect(self.Ui.RepeatButton,QtCore.SIGNAL("clicked()"), self.call_repeat)
-    	QtCore.QObject.connect(self.Ui.PlaylistButton,QtCore.SIGNAL("clicked()"), self.call_playlist_button)
-        
-        # LookingFor
-        QtCore.QObject.connect(self.Ui.LookingFor, QtCore.SIGNAL("textEdited(QString)"), self.call_search)
-        
-        #./! fetch mode
-        QtCore.QObject.connect(self.Ui.LookingForNoTouch, QtCore.SIGNAL("clicked()"), self.call_fetch)  
-        QtCore.QObject.connect(self.Ui.verticalSlider, QtCore.SIGNAL("valueChanged(int)"), self.call_volume )
-
-        # Playlist Window
-        QtCore.QObject.connect(self.Playlist_Window.Playlist, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_playlist )
-        QtCore.QObject.connect(self.Playlist_Window.Playlist, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_playlist_before)  
-        QtCore.QObject.connect(self.Playlist_Window.Playlist, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right)  
-
-        # Browser Window
-        QtCore.QObject.connect(self.Browser.select_path, QtCore.SIGNAL("clicked()"), self.send_path)
-
         # Server Window
         QtCore.QObject.connect(self.Dialog, QtCore.SIGNAL("accepted()"), self.change_server)
         QtCore.QObject.connect(self.Server_Window.radioButton, QtCore.SIGNAL("toggled(bool)"), self.lf_server)
 
+        #initializing server
+        self.start_ui()
+
     def start_ui(self): 
-        #connection with the server
-        self.server = xmlrpclib.ServerProxy("http://" + config.serverName + ":" + str(config.defaultPort))
+        try:
+            #connection with the server
+            self.server = xmlrpclib.ServerProxy("http://" + config.serverName + ":" + str(config.defaultPort))
 
-        #launching not in fetchmode
-        self.fetch = True
-        self.right = False 
-
-        #var linked with the server
-        self.point = -1
-        self.playlist = []
-
-        #sync with the server at the beginning
-        self.sync_server()
-        self.iconChange()
-        self.update_volume()
-        
-        #get self.songsBase, self.artistsBase, self.albumsBase
-        self.get_lib()
-        
-        #self.artists,albums,songs can possibly change because of 'looking for'
-        self.artists = dict(self.artistsBase)
-        self.albums = dict(self.albumsBase)
-        self.songs = dict(self.songsBase)
-
-
-        #display artists and albums at launch, if server is playing, display current infos
-        self.date_display_name = -1
-        if self.playlist != []:
-            #displaying playlist
-            self.call_fetch()
-            self.selectedSongs = self.playlist
-            self.call_add_all()
-            if self.point != -1:
-                self.display_name()
-                if self.server.is_playing():
-                    self.run_stream()
-        else:
-            #fetching tracks
+            #launching not in fetchmode
             self.fetch = True
-            self.call_add_all()
+            self.right = False 
+
+            #var linked with the server
+            self.point = -1
+            self.playlist = []
+
+            #sync with the server at the beginning
+            self.sync_server()
+            self.iconChange()
+            self.update_volume()
+            
+            #get self.songsBase, self.artistsBase, self.albumsBase
+            self.get_lib()
+            
+            #self.artists,albums,songs can possibly change because of 'looking for'
+            self.artists = dict(self.artistsBase)
+            self.albums = dict(self.albumsBase)
+            self.songs = dict(self.songsBase)
+
+
+            #display artists and albums at launch, if server is playing, display current infos
+            self.date_display_name = -1
+            if self.playlist != []:
+                #displaying playlist
+                self.call_fetch()
+                self.selectedSongs = self.playlist
+                self.call_add_all()
+                if self.point != -1:
+                    self.display_name()
+                    if self.server.is_playing():
+                        self.run_stream()
+            else:
+                #fetching tracks
+                self.fetch = True
+                self.call_add_all()
+               
+            #update buttons state
+            self.button_fetch() 
+            self.button_repeat()
+            self.button_playlist()
+            
+            if self.server.is_playing():
+                self.run_stream()
+        except:
+            return False
+        else:
+            # Menu 
+            QtCore.QObject.connect(self.Ui.actionImporter_Dossier, QtCore.SIGNAL("triggered()"), self.open_browser)
+
+            # Shortcuts
+            self.shortPlay = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+J"), self)
+            self.shortPrev = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+H"), self)
+            self.shortNext = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+K"), self)
+            QtCore.QObject.connect(self.shortPlay, QtCore.SIGNAL('activated()'), self.call_play_pause )
+            QtCore.QObject.connect(self.shortPrev, QtCore.SIGNAL('activated()'), self.call_prev )
+            QtCore.QObject.connect(self.shortNext, QtCore.SIGNAL('activated()'), self.call_next )
            
-        #update buttons state
-        self.button_fetch() 
-        self.button_repeat()
-        self.button_playlist()
-        
-        if self.server.is_playing():
-            self.run_stream()
-    
+            # By song
+            QtCore.QObject.connect(self.Ui.AudioTrack, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_track_before )
+            QtCore.QObject.connect(self.Ui.AudioTrack, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_track )
+            QtCore.QObject.connect(self.Ui.AudioTrack, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right )
+            # By album
+            QtCore.QObject.connect(self.Ui.Album, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_album_before )
+            QtCore.QObject.connect(self.Ui.Album, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_album)
+            QtCore.QObject.connect(self.Ui.Album, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right )
+            QtCore.QObject.connect(self.Ui.Album.header(), QtCore.SIGNAL("sectionClicked(int)"), self.call_add_all_albums )
+            # By artist
+            QtCore.QObject.connect(self.Ui.Artist, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_artist_before )
+            QtCore.QObject.connect(self.Ui.Artist, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_artist )
+            QtCore.QObject.connect(self.Ui.Artist, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right )
+            QtCore.QObject.connect(self.Ui.Artist.header(), QtCore.SIGNAL("sectionClicked(int)"), self.call_add_all )
+             
+            # Buttons
+            QtCore.QObject.connect(self.Ui.PlayButton, QtCore.SIGNAL("clicked()"), self.call_play_pause )
+            QtCore.QObject.connect(self.Ui.NextButton, QtCore.SIGNAL("clicked()"), self.call_next)
+            QtCore.QObject.connect(self.Ui.PreviousButton, QtCore.SIGNAL("clicked()"), self.call_prev)
+            QtCore.QObject.connect(self.Ui.RandomButton, QtCore.SIGNAL("clicked()"), self.call_random)
+            QtCore.QObject.connect(self.Ui.RepeatButton,QtCore.SIGNAL("clicked()"), self.call_repeat)
+            QtCore.QObject.connect(self.Ui.PlaylistButton,QtCore.SIGNAL("clicked()"), self.call_playlist_button)
+            
+            # LookingFor
+            QtCore.QObject.connect(self.Ui.LookingFor, QtCore.SIGNAL("textEdited(QString)"), self.call_search)
+            
+            #./! fetch mode
+            QtCore.QObject.connect(self.Ui.LookingForNoTouch, QtCore.SIGNAL("clicked()"), self.call_fetch)  
+            QtCore.QObject.connect(self.Ui.verticalSlider, QtCore.SIGNAL("valueChanged(int)"), self.call_volume )
+
+            # Playlist Window
+            QtCore.QObject.connect(self.Playlist_Window.Playlist, QtCore.SIGNAL("itemActivated(QTreeWidgetItem*,int)"), self.call_play_playlist )
+            QtCore.QObject.connect(self.Playlist_Window.Playlist, QtCore.SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.call_playlist_before)  
+            QtCore.QObject.connect(self.Playlist_Window.Playlist, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"), self.call_right)  
+
+            # Browser Window
+            QtCore.QObject.connect(self.Browser.select_path, QtCore.SIGNAL("clicked()"), self.send_path)
+
+            return True
+   
     def call_right(self):
         self.right = True
 
@@ -186,7 +190,12 @@ class MyForm(QtGui.QMainWindow):
         config.set('server', 'port', address[1])
         config.defaultPort = address[1]
         
-        self.songStream.terminate()
+        #killing stream if existing
+        try:
+            self.songStream.terminate()
+        except:
+            pass
+
         self.Ui.SongBar.setValue(0)
 
         self.start_ui()
