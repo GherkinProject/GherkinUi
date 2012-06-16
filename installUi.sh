@@ -14,8 +14,7 @@ else
 fi
 
 echo "Creating and copying files"
-mkdir $dir
-cp -R ui/* $dir/
-echo $USER
+mkdir -p $dir
+cp -R src/* $dir/
 chown -R $USER $dir
 ln -s $dir/start_ui.py /usr/local/bin/ghk-ui

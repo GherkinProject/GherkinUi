@@ -5,6 +5,14 @@ dir=${defaultScript%/*}
 
 echo "Found directory in $dir"
 echo "Removing..."
-rm -r $dir
-rm $defaultStarter
+if [ -d "$dir" ]
+then
+    rm -R $dir
+    echo "Files"
+fi
+if [ -f "$defaultStarter" ]
+then
+    rm $defaultStarter
+    echo "Link"
+fi
 echo "Done"
