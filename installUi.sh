@@ -1,38 +1,32 @@
 #!/bin/sh
-defaultDir=/usr/local/ghk-ui
+defaultStarter=/usr/local/bin/ghk-ui
+defaultScript=`readlink -f $defaultStarter`
+dir=${defaultScript%/*}
 
-echo "Beginning installation of UiServer"
-echo -n "Default directory is $defaultDir, do you want to change it ? (y/n) "
-read dirQuestion
+echo "Found directory in $dir"
 
-if [ $dirQuestion = "y" ]
+echo -n "Are you sure you want to remove this entire directory ? (y/n) "
+read answer
+
+if [ $answer = "y" ]
 then
-    echo "Put the absolute path where Gherkin Ui will be installed (without slash at the end)"
-    read dir
-else
-    dir=$defaultDir
-fi
-
-echo "Creating and copying files..."
+    echo "Removing..."
 
 #All files
-if [ ! -d "$dir" ]
-then
-    mkdir -p $dir
-    cp -R src/* $dir/
-    echo "Copying files"
-else
-    echo "Application already installed"
-fi
+    if [ -d "$dir" ] || [ ! -z "$dir" ] || [ "$dir" != "${defaultScript%/*}" ]
+    then
+        rm -R $dir
+        echo "Files"
+    fi
 
 #Links
-if [ ! -h /usr/local/bin/ghk-ui ]
-then
-    mkdir -p /usr/local/bin
-    ln -s $dir/start_ui.py /usr/local/bin/ghk-ui
-    echo "Creating link"
-else
-    echo "Link already existing"
-fi
+    if [ -h "$defaultStarter" ]
+    then
+        rm $defaultStarter
+        echo "Link"
+    fi
 
-echo "Done"
+    echo "Done"
+else
+    echo "Aborting"
+fi
