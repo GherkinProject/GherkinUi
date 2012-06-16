@@ -1,9 +1,18 @@
 import ConfigParser
 import json
 import os
+import getpass
 
-ad = os.path.abspath( __file__ )
-ad = ad.rsplit('/', 1)[0] +'/'
+#loading the two locations : root and user
+rootAd = os.path.abspath( __file__ )
+rootAd = rootAd.rsplit('/', 1)[0] +'/'
+userAd = '/home/' + getpass.getuser() + '/.ghk/'
+
+#if config files are not created yet
+try:
+	os.makedirs(userAd)
+except:
+	pass
 
 class cfg_ui:
 	def __init__(self, fileName):
@@ -34,10 +43,9 @@ class cfg_ui:
 			self.keepPlaylist = self.config.getint('constante','keepPlaylist')
 
 			#icon and locations
-			self.root = self.config.get('location','root')
+			self.root = self.config.get('location','rootLoc')
+			self.userLoc = self.config.get('location','userLoc')
 			self.iconLocation = self.config.get('location','pictures',0)
-			self.logLocation = self.config.get('location','log',0)
-			self.defaultDbLocation = self.config.get('location','DbLoc',0)
 			self.defaultDbFile = self.config.get('location','DbFile')
 			self.defaultDbFileImported = self.config.get('location','DbFileImported')
 			self.playIcon = self.config.get('location', 'playIcon',0)
@@ -77,10 +85,9 @@ class cfg_ui:
 		self.config.set('constante', 'keepPlaylist', '6')
 
 		self.config.add_section('location')
-		self.config.set('location', 'root', ad)
-		self.config.set('location', 'pictures', '%(root)spictures/')
-		self.config.set('location', 'log', '%(root)slog/')
-		self.config.set('location', 'DbLoc', '%(root)s')
+		self.config.set('location', 'rootLoc', rootAd)
+        	self.config.set('location', 'userLoc', userAd)
+		self.config.set('location', 'pictures', '%(rootLoc)spictures/')
 		self.config.set('location', 'DbFile', 'db.xml')
 		self.config.set('location', 'DbFileImported', 'dbImported.xml')
 		self.config.set('location', 'playIcon', '%(pictures)splay.png')
@@ -106,4 +113,13 @@ class cfg_ui:
 	    with open(self.fileName, 'wb') as configfile:
 		self.config.write(configfile)
 
-config = cfg_ui(ad +'configUi.cfg')
+config = cfg_ui(userAd +'configUi.cfg')
+
+import logging
+log = logging.getLogger('Ghk Gui')
+hdlr = logging.FileHandler(config.userLoc + 'ui.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(logging.DEBUG)
+log.info("Gui started")

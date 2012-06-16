@@ -9,13 +9,7 @@ import xml.etree.ElementTree as ET
 #local libraries
 from configUi import *
 
-#logs
-import logging
-import logging.config
-logging.config.fileConfig(config.logLocation + "log.conf")
-log = logging.getLogger("GhkDbManagement")
-
-def get_lib(dbLocation = config.defaultDbLocation, dbFile = config.defaultDbFile):
+def get_lib(dbLocation = config.userLoc, dbFile = config.defaultDbFile):
     """Load songs dict from xml file"""
     tree = ET.ElementTree()
     tree.parse(dbLocation + dbFile)

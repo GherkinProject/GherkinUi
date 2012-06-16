@@ -91,9 +91,9 @@ class MyForm(QtGui.QMainWindow):
                         self.run_stream()
             else:
                 #fetching tracks
-                self.fetch = True
+		self.fetch = True
                 self.call_add_all()
-               
+
             #update buttons state
             self.button_fetch() 
             self.button_repeat()
@@ -166,8 +166,7 @@ class MyForm(QtGui.QMainWindow):
     def get_lib(self):
         """Getting the lib from the xml file"""
         if config.serverName == "localhost":
-            config.set("location", "dbLoc", self.server.get_root())
-            (self.artistsBase, self.albumsBase, self.songsBase) = get_lib(dbLocation = config.defaultDbLocation, dbFile = config.defaultDbFile)
+            (self.artistsBase, self.albumsBase, self.songsBase) = get_lib(dbLocation = config.userLoc, dbFile = config.defaultDbFile)
         else:
             #downloading db from server
             with open(config.defaultDbLocation + config.defaultDbFileImported, 'wb') as handle:
