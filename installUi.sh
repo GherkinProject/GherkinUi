@@ -1,7 +1,7 @@
 #!/bin/sh
 defaultDir=/usr/local/ghk-ui
 
-echo "Beginning installation of Gherkin Gui"
+echo "Beginning installation of UiServer"
 echo -n "Default directory is $defaultDir, do you want to change it ? (y/n) "
 read dirQuestion
 
@@ -13,8 +13,26 @@ else
     dir=$defaultDir
 fi
 
-echo "Creating and copying files"
-mkdir -p $dir
-cp -R src/* $dir/
-chown -R $USER $dir
-ln -s $dir/start_ui.py /usr/local/bin/ghk-ui
+echo "Creating and copying files..."
+
+#All files
+if [ ! -d "$dir" ]
+then
+    mkdir -p $dir
+    cp -R src/* $dir/
+    echo "Copying files"
+else
+    echo "Application already installed"
+fi
+
+#Links
+if [ ! -h /usr/local/bin/ghk-ui ]
+then
+    mkdir -p /usr/local/bin
+    ln -s $dir/start_ui.py /usr/local/bin/ghk-ui
+    echo "Creating link"
+else
+    echo "Link already existing"
+fi
+
+echo "Done"
