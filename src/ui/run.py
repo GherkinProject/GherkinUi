@@ -6,7 +6,6 @@ from dbbrowser import Browser_Window
 from server_window import server_window
 from playlistwidget import playlist_window
 
-
 import sys
 
 #local lib : loading db
@@ -102,8 +101,10 @@ class MyForm(QtGui.QMainWindow):
             if self.server.is_playing():
                 self.run_stream()
         except:
+            log.error("impossible to connect to server")
             return False
         else:
+            log.debug("connected to server")
             # Menu 
             QtCore.QObject.connect(self.Ui.actionImporter_Dossier, QtCore.SIGNAL("triggered()"), self.open_browser)
 
@@ -166,10 +167,12 @@ class MyForm(QtGui.QMainWindow):
     def get_lib(self):
         """Getting the lib from the xml file"""
         if config.serverName == "localhost":
+            log.debug("loading local db")
             (self.artistsBase, self.albumsBase, self.songsBase) = get_lib(dbLocation = config.userLoc, dbFile = config.defaultDbFile)
         else:
             #downloading db from server
-            with open(config.defaultDbLocation + config.defaultDbFileImported, 'wb') as handle:
+            log.debug("downloading db from server")
+            with open(config.userLoc + config.defaultDbFileImported, 'wb') as handle:
                 handle.write(self.server.get_db().data)
             
             (self.artistsBase, self.albumsBase, self.songsBase) = get_lib(dbFile = config.defaultDbFileImported)
