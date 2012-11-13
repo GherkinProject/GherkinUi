@@ -19,18 +19,18 @@ You can install gherkin in your system or just use the python file:
 
 To launch from lib:
 
-  python src/start_ui.py
+    python src/start_ui.py
 
 ### Real install
 
 To install gherkin:
 
-  sudo sh installUi.sh
+    sudo sh installUi.sh
 
 Then, to launch program:
 
-  ghk-ui
+    ghk-ui
 
 To remove gherkin:
 
-  sudo sh removeUi.sh
+    sudo sh removeUi.sh
